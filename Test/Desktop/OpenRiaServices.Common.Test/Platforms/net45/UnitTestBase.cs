@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Windows.Threading;
 
 namespace OpenRiaServices.Silverlight.Testing
 {
@@ -27,10 +28,14 @@ namespace OpenRiaServices.Silverlight.Testing
         // The number of timeouts
         private static int NumberOfTimeouts;
 
-        private Queue<Action> _asyncQueue;
-
+        [SecuritySafeCritical]
         protected UnitTestBase()
         {
+            var syncContext = SynchronizationContext.Current;
+            if (!(syncContext is DispatcherSynchronizationContext))
+            {
+                SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext());
+            }
         }
 
         #region Assert nested class
@@ -130,7 +135,7 @@ namespace OpenRiaServices.Silverlight.Testing
             // --- IsNull ---
             public static void IsNull(object instance)
             {
-                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(instance);
+                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(instance, "but was {0}", instance);
             }
             public static void IsNull(object instance, string message)
             {
@@ -329,19 +334,6 @@ namespace OpenRiaServices.Silverlight.Testing
         }
         #endregion // Assert nested class
 
-        private Queue<Action> AsyncQueue
-        {
-            get
-            {
-                if (this._asyncQueue == null)
-                {
-                    this._asyncQueue = new Queue<Action>();
-                }
-
-                return this._asyncQueue;
-            }
-        }
-
         public virtual void Enqueue(Action d)
         {
             if (UnitTestBase.NumberOfTimeouts >= UnitTestBase.DefaultTimeoutThreshold)
@@ -349,7 +341,28 @@ namespace OpenRiaServices.Silverlight.Testing
                 Assert.Inconclusive("The test was not attempted because the number of tests that have timed-out has exceeded the threshold.");
             }
 
-            this.AsyncQueue.Enqueue(d);
+            Action<Action> invoke = InvokeAction;
+            Dispatcher.CurrentDispatcher.BeginInvoke(invoke, DispatcherPriority.Background, d);
+        }
+
+        [SecuritySafeCritical]
+        private static void InvokeAction(Action action)
+        {
+            var syncContext = SynchronizationContext.Current;
+            try
+            {
+                // All callbacks should default to normal
+                SynchronizationContext.SetSynchronizationContext(
+                    // TODO: Cachethis (per class/thread?)
+                    new DispatcherSynchronizationContext(
+                        Dispatcher.CurrentDispatcher, DispatcherPriority.Normal));
+
+                action();
+            }
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(syncContext);
+            }
         }
 
         public virtual void EnqueueCallback(Action testCallbackDelegate)
@@ -378,19 +391,34 @@ namespace OpenRiaServices.Silverlight.Testing
         {
             DateTime endTime = DateTime.Now.AddSeconds(timeoutInSeconds);
 
+
             this.Enqueue(
                 () =>
                 {
-                    while (!conditionalDelegate())
-                    {
-                        if (DateTime.Now >= endTime)
-                        {
-                            UnitTestBase.NumberOfTimeouts++;
-                            Assert.Fail(UnitTestBase.ComposeTimeoutMessage(timeoutInSeconds, timeoutMessage));
-                        }
+                    // Below will run at Render prio
 
-                        Thread.Sleep(UnitTestBase.DefaultStepInMilliseconds);
-                    }
+                    if (conditionalDelegate())
+                        return;
+
+                    Action action = null;
+
+                    action = () =>
+                    {
+                        if (!conditionalDelegate())
+                        {
+                            if (DateTime.Now >= endTime)
+                            {
+                                UnitTestBase.NumberOfTimeouts++;
+                                Assert.Fail(UnitTestBase.ComposeTimeoutMessage(timeoutInSeconds, timeoutMessage));
+                            }
+
+                            Dispatcher.CurrentDispatcher.BeginInvoke(action, DispatcherPriority.Render, null);
+                            Thread.Sleep(UnitTestBase.DefaultStepInMilliseconds);
+
+                        }
+                    };
+
+                    action();
                 });
         }
 
@@ -422,12 +450,75 @@ namespace OpenRiaServices.Silverlight.Testing
             this.ProcessQueue();
         }
 
+        [SecuritySafeCritical]
         private void ProcessQueue()
         {
-            while (this.AsyncQueue.Count > 0)
+            var frame = new DispatcherFrame();
+
+            // This will create dispatcher for the current thread if there is none yet
+            var dispatcher = Dispatcher.CurrentDispatcher;
+
+            dispatcher.BeginInvoke(
+            new Action(() => frame.Continue = false),
+            DispatcherPriority.ContextIdle);
+
+            // Enqued actions are processed to
+
+            ExceptionDispatchInfo exception = null;
+
+            // Stop processing on exception
+            DispatcherUnhandledExceptionEventHandler unhandledEvent = (object sender, DispatcherUnhandledExceptionEventArgs e) =>
             {
-                Action action = this.AsyncQueue.Dequeue();
-                action();
+                exception = ExceptionDispatchInfo.Capture(e.Exception);
+
+                e.Handled = true;
+                frame.Continue = false;
+            };
+
+            // record all qued callbacks
+            List<DispatcherOperation> pendingOperations = new List<DispatcherOperation>();
+            DispatcherHookEventHandler operationAdded = (sender, args) =>
+            {
+                pendingOperations.Add(args.Operation);
+            };
+            DispatcherHookEventHandler operationExecuted = (sender, args) =>
+            {
+                pendingOperations.Remove(args.Operation);
+            };
+
+            try
+            {
+
+                dispatcher.UnhandledException += unhandledEvent;
+                dispatcher.Hooks.OperationPosted += operationAdded;
+                dispatcher.Hooks.OperationCompleted += operationExecuted;
+
+                Dispatcher.PushFrame(frame);
+
+                Dispatcher.Yield(DispatcherPriority.ApplicationIdle).GetAwaiter().GetResult();
+                if (exception != null)
+                    exception.Throw();
+            }
+            finally
+            {
+                dispatcher.UnhandledException -= unhandledEvent;
+                dispatcher.Hooks.OperationPosted -= operationAdded;
+                dispatcher.Hooks.OperationCompleted -= operationExecuted;
+
+                // Abort any unfinished operations
+                foreach (var op in pendingOperations)
+                    if (op.Status != DispatcherOperationStatus.Completed)
+                    {
+                        op.Abort();
+
+                        Assert.IsTrue(exception != null
+                            //|| pendingOperations.Count == 0
+                            // The DispatcherFrame posts a "no-op" send event upon exit
+                            // this should be the only invocation in the queue
+                            || pendingOperations.Count == 1 && op.Priority == DispatcherPriority.Send
+                            , "Not all callbacks executed, but no exception thrown");
+                    }
+
             }
         }
     }
