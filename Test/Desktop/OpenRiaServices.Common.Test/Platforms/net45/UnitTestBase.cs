@@ -24,7 +24,8 @@ namespace OpenRiaServices.Silverlight.Testing
 
         // Delay between conditional evaluations
         // We dont really need one since we yield back to the dispatcher between each invocation
-        private const int DefaultStepInMilliseconds = 5;
+        // We use 0 in order to yield execution anyway
+        private const int DefaultStepInMilliseconds = 0;
 
         // The number of timeouts
         private static int NumberOfTimeouts;
@@ -370,20 +371,18 @@ namespace OpenRiaServices.Silverlight.Testing
         [SecuritySafeCritical]
         private static void InvokeAction(Action action)
         {
-            var syncContext = SynchronizationContext.Current;
+            // var syncContext = SynchronizationContext.Current;
             try
             {
                 // All callbacks should default to normal
                 SynchronizationContext.SetSynchronizationContext(
-                    // TODO: Cachethis (per class/thread?)
-                    new DispatcherSynchronizationContext(
-                        Dispatcher.CurrentDispatcher, DispatcherPriority.Normal));
+                    NormalPrioritySynchronizationContext);
 
                 action();
             }
             finally
             {
-                SynchronizationContext.SetSynchronizationContext(syncContext);
+                //SynchronizationContext.SetSynchronizationContext(syncContext);
             }
         }
 
@@ -411,8 +410,8 @@ namespace OpenRiaServices.Silverlight.Testing
 
         public void EnqueueConditional(Func<bool> conditionalDelegate, int timeoutInSeconds, string timeoutMessage)
         {
-            DateTime endTime = DateTime.Now.AddSeconds(timeoutInSeconds);
-
+            var sw = Stopwatch.StartNew();
+            long timoutInMs = (long)timeoutInSeconds * 10000;
 
             this.Enqueue(
                 () =>
@@ -428,7 +427,7 @@ namespace OpenRiaServices.Silverlight.Testing
                     {
                         if (!conditionalDelegate())
                         {
-                            if (DateTime.Now >= endTime)
+                            if (sw.ElapsedMilliseconds >= timoutInMs)
                             {
                                 UnitTestBase.NumberOfTimeouts++;
                                 Assert.Fail(UnitTestBase.ComposeTimeoutMessage(timeoutInSeconds, timeoutMessage));
