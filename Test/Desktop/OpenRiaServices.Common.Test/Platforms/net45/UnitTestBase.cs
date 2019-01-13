@@ -23,19 +23,41 @@ namespace OpenRiaServices.Silverlight.Testing
         protected const int DebuggingTimeoutInSeconds = 600;
 
         // Delay between conditional evaluations
-        private const int DefaultStepInMilliseconds = 100;
+        // We dont really need one since we yield back to the dispatcher between each invocation
+        private const int DefaultStepInMilliseconds = 5;
 
         // The number of timeouts
         private static int NumberOfTimeouts;
 
+        [ThreadStatic]
+        private static Dispatcher s_currentDispatcher;
+        [ThreadStatic]
+        private static DispatcherSynchronizationContext s_synchronizationContextWithNormalPriority;
+
+        /// <summary>
+        /// Get the dispatcher for the current thread.
+        /// This will create dispatcher for the current thread if there is none yet
+        /// </summary>
+        private static Dispatcher CurrentDispatcher =>
+                s_currentDispatcher ?? (s_currentDispatcher = Dispatcher.CurrentDispatcher);
+
+        /// <summary>
+        /// Get a <see cref="DispatcherSynchronizationContext "/> to use when executing enqued actions
+        /// in order to ensure that user code callbacks are executed at normal priority
+        /// </summary>
+        private static DispatcherSynchronizationContext NormalPrioritySynchronizationContext
+        {
+            get
+            {
+                return s_synchronizationContextWithNormalPriority
+                    ?? (s_synchronizationContextWithNormalPriority = new DispatcherSynchronizationContext(CurrentDispatcher, DispatcherPriority.Normal));
+            }
+        }
+
         [SecuritySafeCritical]
         protected UnitTestBase()
         {
-            var syncContext = SynchronizationContext.Current;
-            if (!(syncContext is DispatcherSynchronizationContext))
-            {
-                SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext());
-            }
+            SynchronizationContext.SetSynchronizationContext(NormalPrioritySynchronizationContext);
         }
 
         #region Assert nested class
@@ -435,8 +457,11 @@ namespace OpenRiaServices.Silverlight.Testing
             return failureMessage;
         }
 
+
+        public static TimeSpan TotalDelay;
         public virtual void EnqueueDelay(TimeSpan delay)
         {
+            TotalDelay += delay;
             this.Enqueue(() => Thread.Sleep((int)delay.TotalMilliseconds));
         }
 
@@ -453,72 +478,61 @@ namespace OpenRiaServices.Silverlight.Testing
         [SecuritySafeCritical]
         private void ProcessQueue()
         {
-            var frame = new DispatcherFrame();
+            var dispatcherFrame = new DispatcherFrame();
+            var dispatcher = CurrentDispatcher;
+            ExceptionDispatchInfo capturedException = null;
 
-            // This will create dispatcher for the current thread if there is none yet
-            var dispatcher = Dispatcher.CurrentDispatcher;
-
-            dispatcher.BeginInvoke(
-            new Action(() => frame.Continue = false),
-            DispatcherPriority.ContextIdle);
-
-            // Enqued actions are processed to
-
-            ExceptionDispatchInfo exception = null;
+            // Stop processing when there are no work left with priority Background or higher
+            dispatcher.BeginInvoke(new Action(() => dispatcherFrame.Continue = false), DispatcherPriority.ContextIdle);
 
             // Stop processing on exception
-            DispatcherUnhandledExceptionEventHandler unhandledEvent = (object sender, DispatcherUnhandledExceptionEventArgs e) =>
+            DispatcherUnhandledExceptionEventHandler unhandledException
+                = (object sender, DispatcherUnhandledExceptionEventArgs e) =>
             {
-                exception = ExceptionDispatchInfo.Capture(e.Exception);
+
+                capturedException = ExceptionDispatchInfo.Capture(e.Exception);
 
                 e.Handled = true;
-                frame.Continue = false;
+                dispatcherFrame.Continue = false;
             };
 
-            // record all qued callbacks
+            // record all queued callbacks so that they can all be aborted
+            // TODO: consider making this static so it can be setup once for the class (per instance?)
             List<DispatcherOperation> pendingOperations = new List<DispatcherOperation>();
-            DispatcherHookEventHandler operationAdded = (sender, args) =>
-            {
-                pendingOperations.Add(args.Operation);
-            };
-            DispatcherHookEventHandler operationExecuted = (sender, args) =>
-            {
-                pendingOperations.Remove(args.Operation);
-            };
+            DispatcherHookEventHandler operationAdded = (_, args) => pendingOperations.Add(args.Operation);
+            DispatcherHookEventHandler operationExecuted = (_, args) => pendingOperations.Remove(args.Operation);
 
             try
             {
-
-                dispatcher.UnhandledException += unhandledEvent;
+                dispatcher.UnhandledException += unhandledException;
                 dispatcher.Hooks.OperationPosted += operationAdded;
                 dispatcher.Hooks.OperationCompleted += operationExecuted;
 
-                Dispatcher.PushFrame(frame);
+                Dispatcher.PushFrame(dispatcherFrame);
 
-                Dispatcher.Yield(DispatcherPriority.ApplicationIdle).GetAwaiter().GetResult();
-                if (exception != null)
-                    exception.Throw();
+                if (capturedException != null)
+                    capturedException.Throw();
             }
             finally
             {
-                dispatcher.UnhandledException -= unhandledEvent;
+                dispatcher.UnhandledException -= unhandledException;
                 dispatcher.Hooks.OperationPosted -= operationAdded;
                 dispatcher.Hooks.OperationCompleted -= operationExecuted;
 
                 // Abort any unfinished operations
                 foreach (var op in pendingOperations)
+                {
                     if (op.Status != DispatcherOperationStatus.Completed)
                     {
                         op.Abort();
 
-                        Assert.IsTrue(exception != null
-                            //|| pendingOperations.Count == 0
+                        Assert.IsTrue(capturedException != null
                             // The DispatcherFrame posts a "no-op" send event upon exit
                             // this should be the only invocation in the queue
                             || pendingOperations.Count == 1 && op.Priority == DispatcherPriority.Send
                             , "Not all callbacks executed, but no exception thrown");
                     }
-
+                }
             }
         }
     }
