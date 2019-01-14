@@ -411,7 +411,7 @@ namespace OpenRiaServices.Silverlight.Testing
         public void EnqueueConditional(Func<bool> conditionalDelegate, int timeoutInSeconds, string timeoutMessage)
         {
             var sw = Stopwatch.StartNew();
-            long timoutInMs = (long)timeoutInSeconds * 10000;
+            long timoutInMs = (long)timeoutInSeconds * 1000;
 
             this.Enqueue(
                 () =>
