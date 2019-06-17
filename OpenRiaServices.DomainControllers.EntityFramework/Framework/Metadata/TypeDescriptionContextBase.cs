@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace OpenRiaServices.DomainControllers.EntityFramework.Metadata
+namespace OpenRiaServices.DomainControllers.Server.EntityFramework.Metadata
 {
     /// <summary>
     /// Base class for LTS and EF type description contexts

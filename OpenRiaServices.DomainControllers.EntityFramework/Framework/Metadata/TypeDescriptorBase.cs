@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
-namespace OpenRiaServices.DomainControllers.EntityFramework.Metadata
+namespace OpenRiaServices.DomainControllers.Server.EntityFramework.Metadata
 {
     /// <summary>
     /// CustomTypeDescriptor base type shared by LINQ To SQL and LINQ To Entities

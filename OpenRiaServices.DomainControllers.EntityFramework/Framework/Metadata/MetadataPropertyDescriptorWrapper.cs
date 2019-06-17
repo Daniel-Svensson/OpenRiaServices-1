@@ -3,7 +3,7 @@
 using System;
 using System.ComponentModel;
 
-namespace OpenRiaServices.DomainControllers.EntityFramework.Metadata
+namespace OpenRiaServices.DomainControllers.Server.EntityFramework.Metadata
 {
     internal class MetadataPropertyDescriptorWrapper : PropertyDescriptor
     {

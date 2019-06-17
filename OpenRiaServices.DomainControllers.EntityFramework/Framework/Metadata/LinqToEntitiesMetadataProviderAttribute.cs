@@ -6,7 +6,7 @@ using System.Web.Http;
 using OpenRiaServices.DomainControllers.Server.Metadata;
 using OpenRiaServices.DomainControllers.Server;
 
-namespace OpenRiaServices.DomainControllers.EntityFramework.Metadata
+namespace OpenRiaServices.DomainControllers.Server.EntityFramework.Metadata
 {
     /// <summary>
     /// Attribute applied to a <see cref="DomainController"/> that exposes LINQ to Entities mapped

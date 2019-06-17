@@ -8,10 +8,10 @@ using System.Data.Entity.Core;
 using System.Data.Entity.Core.Objects;
 using System.Linq;
 using System.Web.Http.Controllers;
-using OpenRiaServices.DomainControllers.EntityFramework.Metadata;
+using OpenRiaServices.DomainControllers.Server.EntityFramework.Metadata;
 using OpenRiaServices.DomainControllers.Server;
 
-namespace OpenRiaServices.DomainControllers.EntityFramework
+namespace OpenRiaServices.DomainControllers.Server.EntityFramework
 {
     /// <summary>
     /// Base class for DomainControllers operating on LINQ To Entities data models

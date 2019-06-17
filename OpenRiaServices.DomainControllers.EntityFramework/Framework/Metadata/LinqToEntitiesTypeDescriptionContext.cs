@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Web.Http;
 
-namespace OpenRiaServices.DomainControllers.EntityFramework.Metadata
+namespace OpenRiaServices.DomainControllers.Server.EntityFramework.Metadata
 {
     /// <summary>
     /// Metadata context for LINQ To Entities controllers

@@ -15,13 +15,13 @@ using System.Web.Http.Controllers;
 using System.Web.Http.Dispatcher;
 using System.Web.Http.Filters;
 using System.Web.Http.Routing;
-using Microsoft.TestCommon;
-using Microsoft.Web.Http.Data.Test.Models;
+using OpenRiaServices.DomainControllers.Server.Test.Models;
 using Newtonsoft.Json;
+using Xunit;
 
-namespace Microsoft.Web.Http.Data.Test
+namespace OpenRiaServices.DomainControllers.Server.Test
 {
-    public class DataControllerSubmitTests
+    public class DomainControllerSubmitTests
     {
         // Verify that POSTs directly to CUD actions still go through the submit pipeline
         //[Fact]  -- disabled by bradwils on 13 July 2012 because it's flaky
@@ -72,15 +72,15 @@ namespace Microsoft.Web.Http.Data.Test
 
         /// <summary>
         /// End to end validation scenario showing changeset validation. DataAnnotations validation attributes are applied to
-        /// the model by DataController metadata providers (metadata coming all the way from the EF model, as well as "buddy
+        /// the model by DomainController metadata providers (metadata coming all the way from the EF model, as well as "buddy
         /// class" metadata), and these are validated during changeset validation. The validation results per entity/member are
         /// returned via the changeset and verified.
         /// </summary>
         [Fact]
         public void Submit_Validation_Failure()
         {
-            Microsoft.Web.Http.Data.Test.Models.EF.Product newProduct = new Microsoft.Web.Http.Data.Test.Models.EF.Product { ProductID = 1, ProductName = String.Empty, UnitPrice = -1 };
-            Microsoft.Web.Http.Data.Test.Models.EF.Product updateProduct = new Microsoft.Web.Http.Data.Test.Models.EF.Product { ProductID = 1, ProductName = new string('x', 50), UnitPrice = 55.77M };
+            OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product newProduct = new OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product { ProductID = 1, ProductName = String.Empty, UnitPrice = -1 };
+            OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product updateProduct = new OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product { ProductID = 1, ProductName = new string('x', 50), UnitPrice = 55.77M };
             ChangeSetEntry[] changeSet = new ChangeSetEntry[] { 
                 new ChangeSetEntry { Id = 1, Entity = newProduct, Operation = ChangeOperation.Insert },
                 new ChangeSetEntry { Id = 2, Entity = updateProduct, Operation = ChangeOperation.Update }
@@ -211,10 +211,10 @@ namespace Microsoft.Web.Http.Data.Test
 
             HttpConfiguration configuration = new HttpConfiguration();
             HttpControllerDescriptor controllerDescriptor = new HttpControllerDescriptor(configuration, "NorthwindEFTestController", typeof(NorthwindEFTestController));
-            DataControllerDescription description = DataControllerDescription.GetDescription(controllerDescriptor);
+            DomainControllerDescription description = DomainControllerDescription.GetDescription(controllerDescriptor);
             Assert.Throws<InvalidOperationException>(
-                () => DataController.ResolveActions(description, changeSet),
-                String.Format(Resource.DataController_InvalidAction, "Delete", "Product"));
+                () => DomainController.ResolveActions(description, changeSet),
+                String.Format(Resource.DomainController_InvalidAction, "Delete", "Product"));
         }
 
         /// <summary>
@@ -309,7 +309,7 @@ namespace Microsoft.Web.Http.Data.Test
         private IEnumerable<Type> GetTestKnownTypes()
         {
             List<Type> knownTypes = new List<Type>(new Type[] { typeof(Order), typeof(Product), typeof(Order_Detail) });
-            knownTypes.AddRange(new Type[] { typeof(Microsoft.Web.Http.Data.Test.Models.EF.Order), typeof(Microsoft.Web.Http.Data.Test.Models.EF.Product), typeof(Microsoft.Web.Http.Data.Test.Models.EF.Order_Detail) });
+            knownTypes.AddRange(new Type[] { typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Order), typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product), typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Order_Detail) });
             return knownTypes;
         }
     }
@@ -318,7 +318,7 @@ namespace Microsoft.Web.Http.Data.Test
     /// Test controller used for multi-level authorization testing
     /// </summary>
     [TestAuth(Level = "Class")]
-    public class TestAuthController : DataController
+    public class TestAuthController : DomainController
     {
         [TestAuth(Level = "UserMethod")]
         public void UpdateProduct(Product product)

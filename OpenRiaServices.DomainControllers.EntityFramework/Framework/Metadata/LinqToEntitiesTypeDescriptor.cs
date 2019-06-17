@@ -12,7 +12,7 @@ using System.Data.Entity.Core.Objects.DataClasses;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-namespace OpenRiaServices.DomainControllers.EntityFramework.Metadata
+namespace OpenRiaServices.DomainControllers.Server.EntityFramework.Metadata
 {
     /// <summary>
     /// CustomTypeDescriptor for LINQ To Entities

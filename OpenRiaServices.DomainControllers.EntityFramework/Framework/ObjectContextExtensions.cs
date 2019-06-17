@@ -6,7 +6,7 @@ using System.Data.Entity;
 using System.Data.Entity.Core.Objects;
 using System.Web.Http;
 
-namespace OpenRiaServices.DomainControllers.EntityFramework
+namespace OpenRiaServices.DomainControllers.Server.EntityFramework
 {
     /// <summary>
     /// ObjectContext extension methods

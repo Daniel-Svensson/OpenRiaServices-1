@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Data.EntityClient;
+using System.Data.Entity.Core.EntityClient;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Hosting;
 using System.Web.Http.Routing;
 
-namespace Microsoft.Web.Http.Data.Test
+namespace OpenRiaServices.DomainControllers.Server.Test
 {
     internal static class TestHelpers
     {

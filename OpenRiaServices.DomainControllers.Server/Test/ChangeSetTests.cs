@@ -2,11 +2,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.TestCommon;
-using Microsoft.Web.Http.Data;
-using Microsoft.Web.Http.Data.Test.Models;
+using OpenRiaServices.DomainControllers.Server.Test.Models;
+using OpenRiaServices.DomainControllers.Server;
+using Xunit;
+using System;
 
-namespace System.ServiceModel.DomainServices.Server.Test
+namespace OpenRiaServies.DomainControllers.Server.Test
 {
     public class ChangeSetTests
     {
@@ -21,7 +22,7 @@ namespace System.ServiceModel.DomainServices.Server.Test
             Product orig = new Product { ProductID = 1 };
             ChangeSetEntry entry = new ChangeSetEntry { Id = 1, Entity = curr, OriginalEntity = orig, Operation = ChangeOperation.Insert };
             ChangeSet cs = null;
-            Assert.Throws<InvalidOperationException>(delegate
+            Assert.Throws<InvalidOperationException>( () =>
             {
                 cs = new ChangeSet(new ChangeSetEntry[] { entry });
             },
@@ -106,7 +107,7 @@ namespace System.ServiceModel.DomainServices.Server.Test
         {
             ChangeSet changeSet = this.GenerateChangeSet();
             Assert.Throws<ArgumentException>(
-                () => changeSet.GetOriginal(new Product()),
+                () => (object)changeSet.GetOriginal(new Product()),
                 Resource.ChangeSet_ChangeSetEntryNotFound);
         }
 

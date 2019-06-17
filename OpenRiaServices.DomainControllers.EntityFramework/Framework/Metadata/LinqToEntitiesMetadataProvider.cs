@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Data.Entity.Core.Metadata.Edm;
 using OpenRiaServices.DomainControllers.Server.Metadata;
 
-namespace OpenRiaServices.DomainControllers.EntityFramework.Metadata
+namespace OpenRiaServices.DomainControllers.Server.EntityFramework.Metadata
 {
     internal class LinqToEntitiesMetadataProvider : MetadataProvider
     {

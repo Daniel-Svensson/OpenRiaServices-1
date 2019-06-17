@@ -10,7 +10,7 @@ using System.Data.Entity.Core.Objects;
 using System.Linq;
 using System.Web.Http;
 
-namespace OpenRiaServices.DomainControllers.EntityFramework
+namespace OpenRiaServices.DomainControllers.Server.EntityFramework
 {
     /// <summary>
     /// Internal utility functions for dealing with EF types and metadata

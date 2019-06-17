@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Microsoft.Web.Http.Data.Test.Models
+namespace OpenRiaServices.DomainControllers.Server.Test.Models
 {
     public partial class Category
     {

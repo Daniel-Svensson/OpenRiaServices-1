@@ -11,10 +11,10 @@ using System.Data.Entity.Core.Objects;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Controllers;
-using OpenRiaServices.DomainControllers.EntityFramework.Metadata;
+using OpenRiaServices.DomainControllers.Server.EntityFramework.Metadata;
 using OpenRiaServices.DomainControllers.Server;
 
-namespace OpenRiaServices.DomainControllers.EntityFramework
+namespace OpenRiaServices.DomainControllers.Server.EntityFramework
 {
     [DbMetadataProvider]
     public abstract class DbDomainController<TContext> : DomainController

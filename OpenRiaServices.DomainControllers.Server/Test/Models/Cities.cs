@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace Microsoft.Web.Http.Data.Test.Models
+namespace OpenRiaServices.DomainControllers.Server.Test.Models
 {
     /// <summary>
     /// Sample data class

@@ -13,4 +13,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Microsoft.Design", "CA2210:AssembliesShouldHaveValidStrongNames", Justification = "Assembly is delay signed")]
-[assembly: SuppressMessage("Microsoft.Design", "CA1020:AvoidNamespacesWithFewTypes", Scope = "namespace", Target = "OpenRiaServices.DomainControllers.EntityFramework.Metadata", Justification = "These types are in their own namespace to match folder structure.")]
+[assembly: SuppressMessage("Microsoft.Design", "CA1020:AvoidNamespacesWithFewTypes", Scope = "namespace", Target = "OpenRiaServices.DomainControllers.Server.EntityFramework.Metadata", Justification = "These types are in their own namespace to match folder structure.")]

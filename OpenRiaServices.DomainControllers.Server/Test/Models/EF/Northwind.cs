@@ -9,9 +9,9 @@
 
 using System;
 using System.ComponentModel;
-using System.Data.EntityClient;
-using System.Data.Objects;
-using System.Data.Objects.DataClasses;
+using System.Data.Entity.Core.EntityClient;
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Core.Objects.DataClasses;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
@@ -19,21 +19,21 @@ using System.Xml.Serialization;
 [assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
 
-[assembly: EdmRelationshipAttribute("northwindModel", "FK_Products_Categories", "Categories", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(System.Web.Http.Data.Test.Models.EF.Category), "Products", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(System.Web.Http.Data.Test.Models.EF.Product), true)]
-[assembly: EdmRelationshipAttribute("northwindModel", "FK_Orders_Customers", "Customers", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(System.Web.Http.Data.Test.Models.EF.Customer), "Orders", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(System.Web.Http.Data.Test.Models.EF.Order), true)]
-[assembly: EdmRelationshipAttribute("northwindModel", "FK_Employees_Employees", "Employees", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(System.Web.Http.Data.Test.Models.EF.Employee), "Employees1", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(System.Web.Http.Data.Test.Models.EF.Employee), true)]
-[assembly: EdmRelationshipAttribute("northwindModel", "FK_Orders_Employees", "Employees", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(System.Web.Http.Data.Test.Models.EF.Employee), "Orders", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(System.Web.Http.Data.Test.Models.EF.Order), true)]
-[assembly: EdmRelationshipAttribute("northwindModel", "FK_Order_Details_Orders", "Orders", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(System.Web.Http.Data.Test.Models.EF.Order), "Order_Details", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(System.Web.Http.Data.Test.Models.EF.Order_Detail), true)]
-[assembly: EdmRelationshipAttribute("northwindModel", "FK_Order_Details_Products", "Products", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(System.Web.Http.Data.Test.Models.EF.Product), "Order_Details", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(System.Web.Http.Data.Test.Models.EF.Order_Detail), true)]
-[assembly: EdmRelationshipAttribute("northwindModel", "FK_Orders_Shippers", "Shippers", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(System.Web.Http.Data.Test.Models.EF.Shipper), "Orders", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(System.Web.Http.Data.Test.Models.EF.Order), true)]
-[assembly: EdmRelationshipAttribute("northwindModel", "FK_Products_Suppliers", "Suppliers", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(System.Web.Http.Data.Test.Models.EF.Supplier), "Products", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(System.Web.Http.Data.Test.Models.EF.Product), true)]
-[assembly: EdmRelationshipAttribute("northwindModel", "FK_Territories_Region", "Region", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(System.Web.Http.Data.Test.Models.EF.Region), "Territories", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(System.Web.Http.Data.Test.Models.EF.Territory), true)]
-[assembly: EdmRelationshipAttribute("northwindModel", "CustomerCustomerDemo", "CustomerDemographics", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(System.Web.Http.Data.Test.Models.EF.CustomerDemographic), "Customers", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(System.Web.Http.Data.Test.Models.EF.Customer))]
-[assembly: EdmRelationshipAttribute("northwindModel", "EmployeeTerritories", "Employees", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(System.Web.Http.Data.Test.Models.EF.Employee), "Territories", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(System.Web.Http.Data.Test.Models.EF.Territory))]
+[assembly: EdmRelationshipAttribute("northwindModel", "FK_Products_Categories", "Categories", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Category), "Products", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product), true)]
+[assembly: EdmRelationshipAttribute("northwindModel", "FK_Orders_Customers", "Customers", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Customer), "Orders", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Order), true)]
+[assembly: EdmRelationshipAttribute("northwindModel", "FK_Employees_Employees", "Employees", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Employee), "Employees1", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Employee), true)]
+[assembly: EdmRelationshipAttribute("northwindModel", "FK_Orders_Employees", "Employees", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Employee), "Orders", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Order), true)]
+[assembly: EdmRelationshipAttribute("northwindModel", "FK_Order_Details_Orders", "Orders", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Order), "Order_Details", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Order_Detail), true)]
+[assembly: EdmRelationshipAttribute("northwindModel", "FK_Order_Details_Products", "Products", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product), "Order_Details", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Order_Detail), true)]
+[assembly: EdmRelationshipAttribute("northwindModel", "FK_Orders_Shippers", "Shippers", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Shipper), "Orders", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Order), true)]
+[assembly: EdmRelationshipAttribute("northwindModel", "FK_Products_Suppliers", "Suppliers", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Supplier), "Products", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product), true)]
+[assembly: EdmRelationshipAttribute("northwindModel", "FK_Territories_Region", "Region", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Region), "Territories", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Territory), true)]
+[assembly: EdmRelationshipAttribute("northwindModel", "CustomerCustomerDemo", "CustomerDemographics", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.CustomerDemographic), "Customers", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Customer))]
+[assembly: EdmRelationshipAttribute("northwindModel", "EmployeeTerritories", "Employees", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Employee), "Territories", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Territory))]
 
 #endregion
 
-namespace System.Web.Http.Data.Test.Models.EF
+namespace OpenRiaServices.DomainControllers.Server.Test.Models.EF
 {
     #region Contexts
     
@@ -382,7 +382,7 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -485,7 +485,6 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -539,7 +538,7 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -810,7 +809,6 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -884,7 +882,7 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -939,7 +937,6 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -995,7 +992,7 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -1434,7 +1431,6 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -1568,7 +1564,7 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -1911,7 +1907,6 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -2085,7 +2080,7 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -2215,7 +2210,6 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -2325,7 +2319,7 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -2572,7 +2566,6 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -2702,7 +2695,7 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -2757,7 +2750,6 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -2811,7 +2803,7 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -2890,7 +2882,6 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -2944,7 +2935,7 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -3239,7 +3230,6 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -3295,7 +3285,7 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -3374,7 +3364,6 @@ namespace System.Web.Http.Data.Test.Models.EF
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -3443,5 +3432,4 @@ namespace System.Web.Http.Data.Test.Models.EF
 
     #endregion
 
-    
 }

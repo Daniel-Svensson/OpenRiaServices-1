@@ -2,12 +2,12 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Microsoft.Web.Http.Data.EntityFramework;
-using Microsoft.Web.Http.Data.Test.Models.EF;
+using OpenRiaServices.DomainControllers.Server.EntityFramework;
+using OpenRiaServices.DomainControllers.Server.Test.Models.EF;
 
-namespace Microsoft.Web.Http.Data.Test
+namespace OpenRiaServices.DomainControllers.Server.Test
 {
-    public class NorthwindEFTestController : LinqToEntitiesDataController<NorthwindEntities>
+    public class NorthwindEFTestController : LinqToEntitiesDomainController<NorthwindEntities>
     {
         public IQueryable<Product> GetProducts()
         {
@@ -29,7 +29,7 @@ namespace Microsoft.Web.Http.Data.Test
     }
 }
 
-namespace Microsoft.Web.Http.Data.Test.Models.EF
+namespace OpenRiaServices.DomainControllers.Server.Test.Models.EF
 {
     [MetadataType(typeof(ProductMetadata))]
     public partial class Product

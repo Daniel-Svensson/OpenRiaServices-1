@@ -2,11 +2,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Web.Http.Data.Test.Models;
+using OpenRiaServices.DomainControllers.Server.Test.Models;
 
-namespace Microsoft.Web.Http.Data.Test
+namespace OpenRiaServices.DomainControllers.Server.Test
 {
-    public class CatalogController : DataController
+    public class CatalogController : DomainController
     {
         private Product[] products;
 

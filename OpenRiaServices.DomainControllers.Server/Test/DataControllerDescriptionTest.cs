@@ -9,17 +9,17 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
-using Microsoft.TestCommon;
-using Microsoft.Web.Http.Data.EntityFramework;
-using Microsoft.Web.Http.Data.EntityFramework.Metadata;
-using Microsoft.Web.Http.Data.Test.Models;
+using OpenRiaServices.DomainControllers.Server.EntityFramework;
+using OpenRiaServices.DomainControllers.Server.EntityFramework.Metadata;
+using OpenRiaServices.DomainControllers.Server.Test.Models;
+using Xunit;
 
-namespace Microsoft.Web.Http.Data.Test
+namespace OpenRiaServices.DomainControllers.Server.Test
 {
-    public class DataControllerDescriptionTest
+    public class DomainControllerDescriptionTest
     {
         // verify that the LinqToEntitiesMetadataProvider is registered by default for
-        // LinqToEntitiesDataController<T> derived types
+        // LinqToEntitiesDomainController<T> derived types
         [Fact]
         public void EFMetadataProvider_AttributeInference()
         {
@@ -29,8 +29,8 @@ namespace Microsoft.Web.Http.Data.Test
                 Configuration = configuration,
                 ControllerType = typeof(NorthwindEFTestController),
             };
-            DataControllerDescription description = GetDataControllerDescription(typeof(NorthwindEFTestController));
-            PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(typeof(Microsoft.Web.Http.Data.Test.Models.EF.Product));
+            DomainControllerDescription description = GetDomainControllerDescription(typeof(NorthwindEFTestController));
+            PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product));
 
             // verify key attribute
             Assert.NotNull(properties["ProductID"].Attributes[typeof(KeyAttribute)]);
@@ -67,13 +67,13 @@ namespace Microsoft.Web.Http.Data.Test
         [Fact]
         public void EFTypeDescriptor_ExcludedEntityMembers()
         {
-            PropertyDescriptor pd = TypeDescriptor.GetProperties(typeof(Microsoft.Web.Http.Data.Test.Models.EF.Product))["EntityState"];
+            PropertyDescriptor pd = TypeDescriptor.GetProperties(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product))["EntityState"];
             Assert.True(LinqToEntitiesTypeDescriptor.ShouldExcludeEntityMember(pd));
 
-            pd = TypeDescriptor.GetProperties(typeof(Microsoft.Web.Http.Data.Test.Models.EF.Product))["EntityState"];
+            pd = TypeDescriptor.GetProperties(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product))["EntityState"];
             Assert.True(LinqToEntitiesTypeDescriptor.ShouldExcludeEntityMember(pd));
 
-            pd = TypeDescriptor.GetProperties(typeof(Microsoft.Web.Http.Data.Test.Models.EF.Product))["SupplierReference"];
+            pd = TypeDescriptor.GetProperties(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product))["SupplierReference"];
             Assert.True(LinqToEntitiesTypeDescriptor.ShouldExcludeEntityMember(pd));
         }
 
@@ -81,7 +81,7 @@ namespace Microsoft.Web.Http.Data.Test
         public void DescriptionValidation_NonAuthorizationFilter()
         {
             Assert.Throws<NotSupportedException>(
-                () => GetDataControllerDescription(typeof(InvalidController_NonAuthMethodFilter)),
+                () => GetDomainControllerDescription(typeof(InvalidController_NonAuthMethodFilter)),
                 String.Format(String.Format(Resource.InvalidAction_UnsupportedFilterType, "InvalidController_NonAuthMethodFilter", "UpdateProduct")));
         }
 
@@ -92,17 +92,17 @@ namespace Microsoft.Web.Http.Data.Test
         [Fact]
         public void AssociatedEntityTypeDiscovery_ExplicitDataContract()
         {
-            DataControllerDescription description = GetDataControllerDescription(typeof(IncludedAssociationTestController_ExplicitDataContract));
+            DomainControllerDescription description = GetDomainControllerDescription(typeof(IncludedAssociationTestController_ExplicitDataContract));
             List<Type> entityTypes = description.EntityTypes.ToList();
             Assert.Equal(8, entityTypes.Count);
-            Assert.True(entityTypes.Contains(typeof(Microsoft.Web.Http.Data.Test.Models.EF.Order)));
-            Assert.True(entityTypes.Contains(typeof(Microsoft.Web.Http.Data.Test.Models.EF.Order_Detail)));
-            Assert.True(entityTypes.Contains(typeof(Microsoft.Web.Http.Data.Test.Models.EF.Customer)));
-            Assert.True(entityTypes.Contains(typeof(Microsoft.Web.Http.Data.Test.Models.EF.Employee)));
-            Assert.True(entityTypes.Contains(typeof(Microsoft.Web.Http.Data.Test.Models.EF.Product)));
-            Assert.True(entityTypes.Contains(typeof(Microsoft.Web.Http.Data.Test.Models.EF.Category)));
-            Assert.True(entityTypes.Contains(typeof(Microsoft.Web.Http.Data.Test.Models.EF.Supplier)));
-            Assert.True(entityTypes.Contains(typeof(Microsoft.Web.Http.Data.Test.Models.EF.Shipper)));
+            Assert.True(entityTypes.Contains(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Order)));
+            Assert.True(entityTypes.Contains(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Order_Detail)));
+            Assert.True(entityTypes.Contains(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Customer)));
+            Assert.True(entityTypes.Contains(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Employee)));
+            Assert.True(entityTypes.Contains(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product)));
+            Assert.True(entityTypes.Contains(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Category)));
+            Assert.True(entityTypes.Contains(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Supplier)));
+            Assert.True(entityTypes.Contains(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Shipper)));
         }
 
         /// <summary>
@@ -112,22 +112,22 @@ namespace Microsoft.Web.Http.Data.Test
         [Fact]
         public void AssociatedEntityTypeDiscovery_ImplicitDataContract()
         {
-            DataControllerDescription description = GetDataControllerDescription(typeof(IncludedAssociationTestController_ImplicitDataContract));
+            DomainControllerDescription description = GetDomainControllerDescription(typeof(IncludedAssociationTestController_ImplicitDataContract));
             List<Type> entityTypes = description.EntityTypes.ToList();
             Assert.Equal(3, entityTypes.Count);
-            Assert.True(entityTypes.Contains(typeof(Microsoft.Web.Http.Data.Test.Models.Customer)));
-            Assert.True(entityTypes.Contains(typeof(Microsoft.Web.Http.Data.Test.Models.Order)));
-            Assert.True(entityTypes.Contains(typeof(Microsoft.Web.Http.Data.Test.Models.Order_Detail)));
+            Assert.True(entityTypes.Contains(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.Customer)));
+            Assert.True(entityTypes.Contains(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.Order)));
+            Assert.True(entityTypes.Contains(typeof(OpenRiaServices.DomainControllers.Server.Test.Models.Order_Detail)));
         }
 
         /// <summary>
-        /// Verify that DataControllerDescription correctly handles Task returning actions and discovers
+        /// Verify that DomainControllerDescription correctly handles Task returning actions and discovers
         /// entity types from those as well (unwrapping the task type).
         /// </summary>
         [Fact]
         public void TaskReturningGetActions()
         {
-            DataControllerDescription desc = GetDataControllerDescription(typeof(TaskReturningGetActionsController));
+            DomainControllerDescription desc = GetDomainControllerDescription(typeof(TaskReturningGetActionsController));
             Assert.Equal(4, desc.EntityTypes.Count());
             Assert.True(desc.EntityTypes.Contains(typeof(City)));
             Assert.True(desc.EntityTypes.Contains(typeof(CityWithInfo)));
@@ -135,7 +135,7 @@ namespace Microsoft.Web.Http.Data.Test
             Assert.True(desc.EntityTypes.Contains(typeof(State)));
         }
 
-        internal static DataControllerDescription GetDataControllerDescription(Type controllerType)
+        internal static DomainControllerDescription GetDomainControllerDescription(Type controllerType)
         {
             HttpConfiguration configuration = new HttpConfiguration();
             HttpControllerDescriptor controllerDescriptor = new HttpControllerDescriptor
@@ -143,27 +143,27 @@ namespace Microsoft.Web.Http.Data.Test
                 Configuration = configuration,
                 ControllerType = controllerType
             };
-            return DataControllerDescription.GetDescription(controllerDescriptor);
+            return DomainControllerDescription.GetDescription(controllerDescriptor);
         }
     }
 
-    internal class InvalidController_NonAuthMethodFilter : DataController
+    internal class InvalidController_NonAuthMethodFilter : DomainController
     {
         // attempt to apply a non-auth filter
         [TestActionFilter]
-        public void UpdateProduct(Microsoft.Web.Http.Data.Test.Models.EF.Product product)
+        public void UpdateProduct(OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product product)
         {
         }
 
         // the restriction doesn't apply for non CUD actions
         [TestActionFilter]
-        public IEnumerable<Microsoft.Web.Http.Data.Test.Models.EF.Product> GetProducts()
+        public IEnumerable<OpenRiaServices.DomainControllers.Server.Test.Models.EF.Product> GetProducts()
         {
             return null;
         }
     }
 
-    internal class TaskReturningGetActionsController : DataController
+    internal class TaskReturningGetActionsController : DomainController
     {
         public Task<IEnumerable<City>> GetCities()
         {
@@ -181,13 +181,13 @@ namespace Microsoft.Web.Http.Data.Test
     {
     }
 
-    internal class IncludedAssociationTestController_ExplicitDataContract : LinqToEntitiesDataController<Microsoft.Web.Http.Data.Test.Models.EF.NorthwindEntities>
+    internal class IncludedAssociationTestController_ExplicitDataContract : LinqToEntitiesDomainController<OpenRiaServices.DomainControllers.Server.Test.Models.EF.NorthwindEntities>
     {
-        public IQueryable<Microsoft.Web.Http.Data.Test.Models.EF.Order> GetOrders() { return null; }
+        public IQueryable<OpenRiaServices.DomainControllers.Server.Test.Models.EF.Order> GetOrders() { return null; }
     }
 
-    internal class IncludedAssociationTestController_ImplicitDataContract : DataController
+    internal class IncludedAssociationTestController_ImplicitDataContract : DomainController
     {
-        public IQueryable<Microsoft.Web.Http.Data.Test.Models.Customer> GetCustomers() { return null; }
+        public IQueryable<OpenRiaServices.DomainControllers.Server.Test.Models.Customer> GetCustomers() { return null; }
     }
 }
