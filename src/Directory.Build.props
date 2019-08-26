@@ -63,10 +63,15 @@
     </Reference>
   </ItemGroup>
 
-  <!-- Enable source link, we really only want this for framework assemblies and CI builds
-  -->
   <ItemGroup Condition="'$(IsFrameworkProject)' == 'true'">
+    <!-- Enable source link, we really only want this for framework assemblies and CI builds
+  -->
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="2.9.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
   </ItemGroup>
   
 </Project>
