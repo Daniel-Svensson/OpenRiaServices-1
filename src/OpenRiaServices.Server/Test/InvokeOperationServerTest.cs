@@ -117,24 +117,58 @@ namespace OpenRiaServices.Server.Test
         }
 
         [TestMethod]
-        [Description("Invoking an invoke operation with invalid parameters")]
-        public async Task InvokeOperation_ServerValidationError()
+        [Description("Invoking an invoke operation should validate parameter validation attributes")]
+        public async Task InvokeOperation_ServerValidationError_Parameter_ValidationAttributes()
         {
             TestProvider_Scenarios provider = ServerTestHelper.CreateInitializedDomainService<TestProvider_Scenarios>(DomainOperationType.Invoke);
             DomainServiceDescription serviceDescription = DomainServiceDescription.GetDescription(typeof(TestProvider_Scenarios));
-            DomainOperationEntry incrementBid1ForAByMethod = serviceDescription.GetInvokeOperation("IncrementBid1ForABy");
-            Assert.IsNotNull(incrementBid1ForAByMethod);
+            DomainOperationEntry operationEntry = serviceDescription.GetInvokeOperation("VariousParameterTypes");
+            Assert.IsNotNull(operationEntry);
 
-            TestDomainServices.A inputA = new TestDomainServices.A()
-            {
-                BID1 = 1
-            };
-            var invokeResult = await provider.InvokeAsync(new InvokeDescription(incrementBid1ForAByMethod, new object[] { inputA, 2 }), CancellationToken.None);
+            // parameters string, int, bool and only string has validation attribute
+            var invokeResult = await provider.InvokeAsync(new InvokeDescription(operationEntry, new object[] { string.Empty, 2, false }), CancellationToken.None);
             Assert.IsNull(invokeResult.Result);
             Assert.IsNotNull(invokeResult.ValidationErrors);
+            Assert.AreEqual(1, invokeResult.ValidationErrors.Count);
+            Assert.AreEqual("The str field is required.", invokeResult.ValidationErrors.ElementAt(0).ErrorMessage);
+        }
+
+        [TestMethod]
+        [Description("Invoking an invoke operation with single entity should perform object level validation of the entity")]
+        [Ignore] // TODO: Uncomment when #292 is fixed
+        public async Task InvokeOperation_ServerValidationError_Entity()
+        {
+            TestProvider_Scenarios provider = ServerTestHelper.CreateInitializedDomainService<TestProvider_Scenarios>(DomainOperationType.Invoke);
+            DomainServiceDescription serviceDescription = DomainServiceDescription.GetDescription(typeof(TestProvider_Scenarios));
+            DomainOperationEntry operationEntry = serviceDescription.GetInvokeOperation(nameof(TestProvider_Scenarios.IncrementBid1ForA));
+            Assert.IsNotNull(operationEntry);
+
+            TestDomainServices.A inputA = new TestDomainServices.A();
+            var invokeResult = await provider.InvokeAsync(new InvokeDescription(operationEntry, new object[] { inputA }), CancellationToken.None);
+            Assert.IsNull(invokeResult.Result, "Should have validation errors instead");
+            Assert.IsNotNull(invokeResult.ValidationErrors, "Should have validation errors");
+            Assert.AreEqual(1, invokeResult.ValidationErrors.Count);
+            Assert.AreEqual("The RequiredString field is required.", invokeResult.ValidationErrors.First().ErrorMessage);
+        }
+
+        [TestMethod]
+        [Description("Invoking an invoke operation with single complex type should perform object level validation of the complex type")]
+        public async Task InvokeOperation_ServerValidationError_ComplexObject()
+        {
+            var provider = ServerTestHelper.CreateInitializedDomainService<ComplexTypes_TestService>(DomainOperationType.Invoke);
+            DomainServiceDescription serviceDescription = DomainServiceDescription.GetDescription(typeof(ComplexTypes_TestService));
+            DomainOperationEntry operationEntry = serviceDescription.GetInvokeOperation(nameof(ComplexTypes_TestService.RoundtripAddress));
+            Assert.IsNotNull(operationEntry);
+
+            Address address = new Address() { State = "123", Zip = "123456" };
+
+            var invokeResult = await provider.InvokeAsync(new InvokeDescription(operationEntry, new object[] { address }), CancellationToken.None);
+            Assert.IsNotNull(invokeResult.ValidationErrors, "Should have validation errors");
             Assert.AreEqual(2, invokeResult.ValidationErrors.Count);
-            Assert.AreEqual("The field delta must be between 5 and 10.", invokeResult.ValidationErrors.ElementAt(0).ErrorMessage);
-            Assert.AreEqual("The RequiredString field is required.", invokeResult.ValidationErrors.ElementAt(1).ErrorMessage);
+            Assert.AreEqual("The field State must be a string with a maximum length of 2.", invokeResult.ValidationErrors.ElementAt(0).ErrorMessage);
+            Assert.AreEqual("The field Zip must be a string with a maximum length of 5.", invokeResult.ValidationErrors.ElementAt(1).ErrorMessage);         
+
+            Assert.IsTrue(operationEntry.RequiresValidation, "Method should require validation");
         }
 
         [TestMethod]

@@ -390,7 +390,7 @@ namespace OpenRiaServices.Client
             {
                 methodPath = operationEntry.Name + ".";
             }
-
+                
             IEnumerable<ValidationAttribute> validationAttributes = operationEntry.Attributes.OfType<ValidationAttribute>();
             bool success = Validator.TryValidateValue(validationContext.ObjectInstance, methodContext, validationResults, validationAttributes);
 
@@ -428,7 +428,8 @@ namespace OpenRiaServices.Client
                     
                     // Custom methods run deep validation as well as parameter validation.
                     // If parameter validation has already failed, stop further validation.
-                    if (parameterSuccess && operationEntry.Operation == DomainOperation.Custom && value != null)
+                    if (parameterSuccess && value != null 
+                        && (operationEntry.Operation == DomainOperation.Custom || operationEntry.Operation == DomainOperation.Invoke))
                     {
                         Type parameterType = methodParameter.ParameterType;
 
